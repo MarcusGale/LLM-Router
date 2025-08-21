@@ -1,105 +1,279 @@
-import Image from "next/image";
-import { TodoList } from "./components/TodoList";
-import { fetchTodos } from "./actions/fetchData";
+'use client'
 
-export default async function Home() {
-  const todos = await fetchTodos();
+import React, { useState, useRef, useCallback, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import {LoaderDots} from '@/components/ui/loader-dots'
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from "remark-gfm";
 
-  return (
-    <div className="min-h-screen bg-gradient-to-b from-zinc-900 to-black">
-      <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="flex flex-col items-center justify-center space-y-8 text-center">
-          <Image
-            className="dark:invert"
-            src="/next.svg"
-            alt="Next.js Logo"
-            width={180}
-            height={38}
-            priority
-          />
-
-          <div className="max-w-2xl">
-            <h1 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">
-              Next.js Server Actions Demo
-            </h1>
-            <p className="mt-4 text-lg text-zinc-400">
-              This is a demonstration of Next.js Server Actions for data
-              mutation. Try adding and toggling todos - all changes are handled
-              by server actions.
-            </p>
-            <a
-              href="/example"
-              className="mt-8 inline-flex items-center justify-center rounded-lg bg-white/[0.1] px-4 py-2 text-sm font-medium text-white hover:bg-white/[0.15] transition-colors"
-            >
-              View Data Fetching Example →
-            </a>
-          </div>
-        </div>
-
-        {/* Main Content */}
-        <div className="mt-16">
-          <div className="overflow-hidden rounded-2xl bg-white/[0.05] shadow-xl ring-1 ring-white/[0.1]">
-            <div className="p-6">
-              <TodoList initialTodos={todos} />
-            </div>
-          </div>
-
-          {/* Code Example */}
-          <div className="mt-8 rounded-lg bg-zinc-900 p-4">
-            <h3 className="text-sm font-medium text-zinc-400">How it works</h3>
-            <pre className="mt-2 overflow-x-auto text-sm text-zinc-300">
-              <code>{`// Server Action (app/actions/fetchData.ts)
-"use server"
-
-async function toggleTodo(id: number) {
-  // Runs on the server
-  // Safe to access database
-  const todo = await db.todo.update(...)
-  return todo
-}`}</code>
-            </pre>
-          </div>
-
-          {/* Resources */}
-          <div className="mt-8 grid gap-4 sm:grid-cols-2">
-            <a
-              href="https://nextjs.org/docs/app/building-your-application/data-fetching/server-actions"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group rounded-lg border border-white/[0.1] px-5 py-4 transition-colors hover:border-zinc-700 hover:bg-zinc-800/50"
-            >
-              <h2 className="mb-3 text-xl font-semibold text-white">
-                Documentation{" "}
-                <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-                  →
-                </span>
-              </h2>
-              <p className="text-sm text-zinc-400">
-                Learn more about Server Actions in the official Next.js
-                documentation.
-              </p>
-            </a>
-
-            <a
-              href="https://github.com/vercel/next.js/tree/canary/examples"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group rounded-lg border border-white/[0.1] px-5 py-4 transition-colors hover:border-zinc-700 hover:bg-zinc-800/50"
-            >
-              <h2 className="mb-3 text-xl font-semibold text-white">
-                Examples{" "}
-                <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-                  →
-                </span>
-              </h2>
-              <p className="text-sm text-zinc-400">
-                Discover more Next.js examples and starter templates.
-              </p>
-            </a>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+interface ChatMessage {
+    id: number
+    sender: 'user' | 'bot'
+    text: string
 }
+
+const BotMessage = React.memo(({message}: { message: string }) => {
+    return (
+        <div className="prose prose-invert max-w-none">
+            <ReactMarkdown
+                remarkPlugins={[remarkGfm]}
+                components={{
+                    table: ({children}) => (
+                        <table className="w-full border-collapse border border-gray-700">
+                            {children}
+                        </table>
+                    ),
+                    th: ({children}) => (
+                        <th className="border border-gray-700 bg-gray-800 px-2 py-1">
+                            {children}
+                        </th>
+                    ),
+                    td: ({children}) => (
+                        <td className="border border-gray-700 px-2 py-1">
+                            {children}
+                        </td>
+                    ),
+                    p: ({children}) => (
+                        <AnimatedText text={String(children)}/>
+                    ),
+                }}
+            >
+                {message}
+            </ReactMarkdown>
+        </div>
+    );
+});
+
+interface AnimatedTextProps {
+    text: string
+    speed?: number // ms per character
+}
+
+const AnimatedText = React.memo(({text, speed = 5}: AnimatedTextProps) => {
+    const [displayed, setDisplayed] = useState('')
+    const [isComplete, setIsComplete] = useState(false)
+
+    useEffect(() => {
+        if (isComplete) return
+
+        let i = 0
+        let timeoutId: NodeJS.Timeout
+
+        function showNext() {
+            if (i <= text.length) {
+                setDisplayed(text.slice(0, i))
+                i += 1
+                timeoutId = setTimeout(showNext, speed)
+            } else {
+                setIsComplete(true)
+            }
+        }
+
+        showNext()
+        return () => {
+            clearTimeout(timeoutId)
+        }
+    }, [text, speed, isComplete])
+
+    useEffect(() => {
+        setIsComplete(false)
+        setDisplayed('')
+    }, [text])
+
+    return <span>{displayed}</span>
+
+});
+// All imports and other code remain the same...
+
+export function ChatPage() {
+    const [messages, setMessages] = useState<ChatMessage[]>([]);
+    const [input, setInput] = useState('');
+    const [isSending, setIsSending] = useState(false);
+    const [hasError, setHasError] = useState(false);
+    const inputRef = useRef<HTMLInputElement>(null);
+
+    const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+        setInput(e.target.value);
+        setHasError(false);
+    }, []);
+
+    const handleSendMessage = useCallback(async () => {
+        if (!input.trim()) {
+            setHasError(true);
+            return;
+        }
+
+        setIsSending(true);
+        const userMessage: ChatMessage = {
+            id: Date.now(),
+            sender: 'user',
+            text: input
+        };
+        setMessages(msgs => [...msgs, userMessage]);
+        setInput('');
+
+        const messagesContainer = document.querySelector('.overflow-y-auto');
+        if (messagesContainer) {
+            setTimeout(() => {
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }, 100);
+        }
+
+        try {
+            const res = await fetch('/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ messages: [{ content: userMessage.text }] })
+            })
+
+            const text = await res.text()
+            let data: ChatResponse
+
+            if (text) {
+                try {
+                    data = JSON.parse(text) as ChatResponse
+                } catch (parseError) {
+                    console.error('Failed to parse JSON', parseError)
+                    setHasError(true)
+                    return
+                }
+            } else {
+                console.error('Empty response from /api/chat')
+                setHasError(true)
+                return
+            }
+
+            if (data.message_markdown) {
+                const botMessage: ChatMessage = {
+                    id: Date.now() + 1,
+                    sender: 'bot',
+                    text: data.message_markdown
+                }
+                setMessages(msgs => [...msgs, botMessage])
+            } else {
+                setHasError(true)
+            }
+        } catch (err) {
+            console.error(err)
+            setHasError(true)
+        }
+
+        setIsSending(false)
+    }, [input]);
+
+    function handleKeyDown (e: React.KeyboardEvent<HTMLInputElement>) {
+        if (e.key === 'Enter') handleSendMessage();
+    }
+
+    return (
+        // The rest of your JSX remains unchanged...
+        <main
+            className='min-h-screen flex flex-col items-center justify-center p-4 bg-gradient-to-br from-red-900 via-red-800 to-black'>
+            <h1 className='text-6xl font-bold mb-2 bg-gradient-to-r from-white to-gray-300 text-transparent bg-clip-text'>
+                Your Own LLM Router
+            </h1>
+            <p className='text-xl text-gray-300 mb-8'>
+                Name your request and the best LLM will be chosen for you
+            </p>
+            <div
+                className='w-full max-w-2xl border rounded-lg shadow-lg h-[800px] bg-gradient-to-br from-red-900 via-red-800 to-black flex flex-col'>
+                <style jsx global>{`
+                    .prose pre {
+                        background: #1a1a1a;
+                        padding: 1rem;
+                        border-radius: 0.5rem;
+                        overflow-x: auto;
+                    }
+                    .prose code {
+                        color: #e5e7eb;
+                    }
+                    .prose h1, .prose h2, .prose h3, .prose h4 {
+                        color: #e5e7eb;
+                    }
+                    .prose p, .prose li {
+                        color: #e5e7eb;
+                    }
+                    .prose table {
+                        width: 100%;
+                        border-collapse: collapse;
+                        margin: 1em 0;
+                    }
+                    .prose th, .prose td {
+                        border: 1px solid #4a5568;
+                        padding: 0.5rem;
+                        color: #e5e7eb;
+                    }
+                    .prose th {
+                        background-color: #1a1a1a;
+                    }
+                `}</style>
+                <section className='flex-1 overflow-y-auto p-4 flex flex-col gap-3' style={{scrollBehavior: 'smooth'}}>
+                    {messages.map(msg => (
+                        <div
+                            key={msg.id}
+                            className={`max-w-[70%] px-4 py-2 rounded-2xl break-words ${
+                                msg.sender === 'user'
+                                    ? 'self-end bg-red-700 text-white'
+                                    : 'self-start bg-black text-white'
+                            }`}
+                            aria-live='polite'
+                        >
+                            {msg.sender === 'bot' ? (
+                                <BotMessage message={msg.text}/>
+                            ) : msg.text}
+                        </div>
+                    ))}
+                    {isSending && (
+                        <div className="self-start bg-black text-white px-4 py-2 rounded-2xl">
+                            <LoaderDots/>
+                        </div>
+                    )}
+                </section>
+                <section className='border-t p-3 bg-gray-900'>
+                    <form
+                        className='flex gap-2'
+                        onSubmit={e => {
+                            e.preventDefault()
+                            handleSendMessage()
+                        }}
+                        aria-label='Chat input form'
+                    >
+                        <input
+                            ref={inputRef}
+                            type='text'
+                            value={input}
+                            onChange={handleInputChange}
+                            onKeyDown={handleKeyDown}
+                            placeholder='Type your message...'
+                            className={`flex-1 px-3 py-2 rounded-lg border text-base outline-none bg-gray-800 text-white ${
+                                hasError ? 'border-red-500' : 'border-gray-700'
+                            }`}
+                            aria-invalid={hasError}
+                            aria-describedby={hasError ? 'chat-input-error' : undefined}
+                            disabled={isSending}
+                        />
+                        <Button
+                            type='submit'
+                            disabled={isSending}
+                            aria-label='Send message'
+                            className='bg-red-700 hover:bg-red-800 text-white'
+                        >
+                            {isSending ? <LoaderDots/> : 'Send'}
+                        </Button>
+                        {hasError && (
+                            <span
+                                id='chat-input-error'
+                                className='text-red-500 text-sm ml-2'
+                                role='alert'
+                            >
+              Please enter a message
+            </span>
+                        )}
+                    </form>
+                </section>
+            </div>
+        </main>
+    )
+}
+//...
+export default ChatPage
