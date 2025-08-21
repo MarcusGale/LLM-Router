@@ -1,72 +1,141 @@
-<<<<<<< HEAD
-# Next.js Template
+# LLM Router Project
 
-This is a template repository showcasing Next.js Server Actions, React Server Components, and modern data fetching patterns. The project includes a Todo list implementation and examples of API integration with proper loading states and error handling.
+## Overview
+
+This project is a Next.js application that intelligently routes user requests to the most appropriate Large Language Model (LLM) based on the nature and complexity of the input. It leverages the OpenRouter API to access various LLMs and dynamically selects the best model for each request, optimizing for performance and cost.
 
 ## Features
 
-- **Todo List**: Server-side data mutations using Next.js Server Actions
-- **Data Fetching Example**: Demonstrates React Suspense and loading states
-- **Modern UI**: Built with Shadcn UI components and Tailwind CSS
-- **Error Handling**: Proper error boundaries and user feedback
-- **Type Safety**: Full TypeScript support
+-   **Intelligent LLM Routing:** Automatically selects the most suitable LLM (e.g., `anthropic/claude-sonnet-4`, `openai/gpt-5-mini`, `openai/gpt-oss-20b`) based on the user's input.
+-   **Next.js App Router:** Built using the latest Next.js features, including Server Components and API routes.
+-   **React Components:** Utilizes functional React components and hooks for a modern and maintainable codebase.
+-   **OpenRouter API:** Integrates with OpenRouter to provide access to a wide range of LLMs.
+-   **Markdown Support:** Renders LLM responses in Markdown format using `react-markdown` and `remark-gfm`.
+-   **Animated Text:** Uses animated text to display the LLM responses.
+-   **Environment Variable Validation:** Uses Zod to validate environment variables.
+-   **Customizable UI:** Styled with Tailwind CSS for a responsive and customizable user interface.
 
-## Tech Stack
+## Technologies Used
 
-- [Next.js](https://nextjs.org) - React framework
-- [Shadcn UI](https://ui.shadcn.com/) - Component library
-- [Tailwind CSS](https://tailwindcss.com) - Styling
-- [TypeScript](https://www.typescriptlang.org/) - Type safety
-
-## Getting Started
-
-1. Clone the repository
-2. Install dependencies:
-
-```bash
-npm install
-# or
-yarn install
-# or
-pnpm install
-```
-
-3. Set up your environment variables in the `.env` file.
-
-4. Start the development server:
-
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the application.
+-   [Next.js](https://nextjs.org/) - React framework for building performant web applications.
+-   [React](https://reactjs.org/) - JavaScript library for building user interfaces.
+-   [TypeScript](https://www.typescriptlang.org/) - Typed superset of JavaScript.
+-   [Tailwind CSS](https://tailwindcss.com/) - Utility-first CSS framework for rapid UI development.
+-   [OpenRouter API](https://openrouter.ai/) - Unified API for accessing multiple LLMs.
+-   [Zod](https://github.com/colinhacks/zod) - TypeScript-first schema validation with static type inference.
+-   [React Markdown](https://github.com/remarkjs/react-markdown) - React component to render Markdown.
+-   [Remark GFM](https://github.com/remarkjs/remark-gfm) - Remark plugin to support GitHub Flavored Markdown.
 
 ## Project Structure
 
-- `app/page.tsx` - Main page with Todo list implementation
-- `app/example/page.tsx` - Data fetching example with loading states
-- `app/actions/*` - Server Actions for data mutations
-- `components/ui/*` - Shadcn UI components
+The project structure follows Next.js conventions with a focus on modularity and maintainability:
 
-## Learn More
+-   `src/app`: Contains the Next.js application routes and page components.
+    -   `api/chat`: API route for handling chat requests and LLM routing.
+    -   `page.tsx`: Main page component with the chat interface.
+-   `src/components/ui`: Reusable UI components.
+    -   `button.tsx`: Custom button component.
+    -   `loader-dots.tsx`: Loading animation component.
+-   `src/config`: Configuration files.
+    -   `env.ts`: Environment variable validation and configuration.
+-   `src/utils`: Utility functions.
+    -   `logger.ts`: Logger utility for consistent logging.
+-   `.env`: Environment variables (API keys, etc.).
+-   `next.config.js`: Next.js configuration file.
+-   `postcss.config.js`: PostCSS configuration file.
+-   `tailwind.config.js`: Tailwind CSS configuration file.
+-   `tsconfig.json`: TypeScript configuration file.
 
-To learn more about the technologies used in this project:
+## Setup Instructions
 
-- [Next.js Documentation](https://nextjs.org/docs) - Next.js features and API
-- [Server Actions](https://nextjs.org/docs/app/building-your-application/data-fetching/server-actions) - Learn about Next.js Server Actions
-- [Shadcn UI Documentation](https://ui.shadcn.com) - Learn about Shadcn UI components
-- [Tailwind CSS Documentation](https://tailwindcss.com/docs) - Learn about Tailwind CSS
+Follow these steps to set up the project locally:
 
-## Deploy on Vercel
+### Prerequisites
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme).
+-   Node.js (version 18 or higher)
+-   npm or yarn
+-   An OpenRouter API key
 
-Check out the [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-=======
-# LLM-Router
-Full-stack AI chat app using Next.js App Router, React, TypeScript, OpenRouter API, and Tailwind CSS. Features dynamic LLM model routing, secure environment validation, and real-time, context-aware chat with automated model selection for latency, cost, and accuracy.
->>>>>>> bccae7fe1c60c111a4a6a6df0da5320c0f5ac07f
+### Installation
+
+1.  Clone the repository:
+
+    ```shell
+    git clone <repository-url>
+    cd llm-router-project
+    ```
+
+2.  Install dependencies:
+
+    ```shell
+    npm install
+    # or
+    yarn install
+    ```
+
+3.  Create a `.env` file in the project root and add your OpenRouter API key:
+
+    ```dotenv
+    OPENROUTER_API_KEY=sk-or-your-api-key
+    ```
+
+4.  Run the development server:
+
+    ```shell
+    npm run dev
+    # or
+    yarn dev
+    ```
+
+    Open your browser and navigate to `http://localhost:3000` to see the application running.
+
+## Environment Variables
+
+The following environment variables are required for the application to function correctly:
+
+-   `OPENROUTER_API_KEY`: Your OpenRouter API key.
+
+Ensure that these variables are set in your `.env` file.
+
+## Usage
+
+1.  Enter your message in the input field.
+2.  Click the "Send" button or press "Enter".
+3.  The application will route your message to the most appropriate LLM and display the response.
+
+## LLM Routing Logic
+
+The `llmRouter` function in `src/app/api/chat/route.ts` is responsible for routing user messages to the appropriate LLM. It uses a prompt to instruct a routing model (`google/gemini-2.5-flash-lite`) to select the best model based on the message content.
+
+The available models and their use cases are:
+
+-   `anthropic/claude-sonnet-4`: Best for complex and advanced coding tasks.
+-   `openai/gpt-5-mini`: Best for non-code tasks requiring advanced reasoning or deep analysis.
+-   `openai/gpt-oss-20b`: Best for simple coding tasks and general, non-reasoning questions.
+
+The function returns an object containing the selected model, its specifications (context, latency, throughput, pricing), and an explanation of why the model was chosen.
+
+## UI Components
+
+The application uses several custom UI components to provide a clean and user-friendly interface:
+
+-   `Button`: A custom button component with Tailwind CSS styling.
+-   `LoaderDots`: A loading animation component that displays animated dots.
+-   `BotMessage`: A component that renders the bot's message in Markdown format.
+-   `AnimatedText`: A component that displays text with a typing animation.
+
+## Global CSS
+
+The `src/app/globals.css` file contains global CSS styles for the application, including:
+
+-   Tailwind CSS base styles, components, and utilities.
+-   Custom CSS variables for background and foreground colors.
+-   Styles for the Markdown rendering.
+
+## Contributing
+
+Contributions are welcome! If you find a bug or have a feature request, please open an issue or submit a pull request.
+
+## License
+
+[MIT](LICENSE)
