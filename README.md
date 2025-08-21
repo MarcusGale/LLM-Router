@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Next.js Template
 
 This is a template repository showcasing Next.js Server Actions, React Server Components, and modern data fetching patterns. The project includes a Todo list implementation and examples of API integration with proper loading states and error handling.
@@ -65,3 +66,7 @@ To learn more about the technologies used in this project:
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme).
 
 Check out the [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+=======
+# LLM-Router
+Full-stack AI chat app using Next.js App Router, React, TypeScript, OpenRouter API, and Tailwind CSS. Features dynamic LLM model routing, secure environment validation, and real-time, context-aware chat with automated model selection for latency, cost, and accuracy.
+>>>>>>> bccae7fe1c60c111a4a6a6df0da5320c0f5ac07f
